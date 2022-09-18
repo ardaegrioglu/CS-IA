@@ -1,0 +1,14 @@
+{% extends "blog/layout.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'blog/home.css' %}">
+{% endblock %}
+
+{% block body %}
+
+<h1 class="top">Welcome to Lorem Ipsum</h1>
+{% for blog in blog_list %}
+<h2 class="center">{{blog.headline}}</h2>
+{% endfor %}
+{% endblock %}
