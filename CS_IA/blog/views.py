@@ -8,6 +8,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from blog.models import User, Agegroup, Article, History, Genres, Favorite
 from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sbs
 
 
 class homeblog:
@@ -22,7 +24,60 @@ class articlesingle(homeblog):
         homeblog.__init__(self, headline, content, id)
         self.genre = genre
 
-        
+# Python program for implementation of Quicksort Sort
+
+# This implementation utilizes pivot as the last element in the nums list
+# It has a pointer to keep track of the elements smaller than the pivot
+# At the very end of partition() function, the pointer is swapped with the pivot
+# to come up with a "sorted" nums relative to the pivot
+
+
+# Function to find the partition position
+def partition(array, low, high):
+
+	# choose the rightmost element as pivot
+	pivot = array[high]
+
+	# pointer for greater element
+	i = low - 1
+
+	# traverse through all elements
+	# compare each element with pivot
+	for j in range(low, high):
+		if array[j].id <= pivot.id:
+
+			# If element smaller than pivot is found
+			# swap it with the greater element pointed by i
+			i = i + 1
+
+			# Swapping element at i with element at j
+			(array[i], array[j]) = (array[j], array[i])
+
+	# Swap the pivot element with the greater element specified by i
+	(array[i + 1], array[high]) = (array[high], array[i + 1])
+
+	# Return the position from where partition is done
+	return i + 1
+
+# function to perform quicksort
+
+
+def quickSort(array, low, high):
+	if low < high:
+
+		# Find pivot element such that
+		# element smaller than pivot are on the left
+		# element greater than pivot are on the right
+		pi = partition(array, low, high)
+
+		# Recursive call on the left of pivot
+		quickSort(array, low, pi - 1)
+
+		# Recursive call on the right of pivot
+		quickSort(array, pi + 1, high)
+
+
+    
 def index(request):
     blog_list = []
     Blogs = list(Article.objects.values())
@@ -30,7 +85,7 @@ def index(request):
         blog_list.append(homeblog(blog["headline"], f'{blog["content"][0:10]}...', blog["id"]))
 
     username = request.session['username']
-
+    quickSort(blog_list, 0, len(blog_list) - 1)
 
     return render(request, 'blog/index.html', {
         "blog_list": blog_list,
@@ -61,6 +116,7 @@ class ArticleForm(forms.Form):
     headline = forms.CharField(label="Headline")
     content = forms.CharField(label="Content")
     genre = forms.CharField(label="Genre")
+
 
 def signup(request):
     if request.method == "POST":
@@ -260,8 +316,54 @@ def deleteapi(request, id):
         return HttpResponseRedirect(reverse("delete")) 
 
 def edit(request):
-    return render(request, "edit.html") 
-    
+    blog_list = []
+    Blogs = list(Article.objects.values())
+    for blog in Blogs:
+        blog_list.append(homeblog(blog["headline"], f'{blog["content"][0:10]}...', blog["id"]))
+
+    username = request.session['username']
+
+
+    return render(request, "blog/edit.html", {
+        "blog_list": blog_list,
+        "user": username
+    })
+
+def editblog(request, id):
+    user = request.session['username']
+    if request.method == "POST":
+
+            # Take in the data the user submitted and save it as form
+                form = request.POST
+            
+                querry = Genres.objects.filter(genre_name = form['genre'])
+                if querry.exists():
+                    pass
+                else:
+                    save = Genres(genre_name = form['genre'])
+                    save.save()
+                # Isolate the task from the 'cleaned' version of form data
+                article = Article.objects.get(id = id)
+                article.headline = form['headline']
+                article.content = form['content']
+                article.genre = Genres.objects.get(genre_name = form['genre'])
+                article.date_added = datetime.now()
+                article.save()
+
+                return HttpResponseRedirect(reverse("edit"))
+    querry = list(Article.objects.filter(id = id).values())
+    genre = Genres.objects.get(id = querry[0]['genre_id'])
+    return render(request, "blog/editblog.html", { 
+        "blog": querry[0],
+        "user": user,
+        "genre": genre
+    })
+
+
+def visualise(request):
+    querry = list(History.objects.all().values())
+    for entry in History
+    return render(request, "blog/visualise.html")
 
 
 

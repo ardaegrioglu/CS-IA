@@ -11,8 +11,9 @@ urlpatterns = [
     path("favorites/", views.favorite, name="favorites"),
     path("unfavorite/<int:id>", views.unfavoriteapi, name="unfavoriteapi"),
     path("create/", views.create, name="create"),
-    #path("edit/", views.edit, name="edit"),
+    path("edit/", views.edit, name="edit"),
     path("delete/", views.delete, name="delete"),
-    path("deleteapi/<int:id>", views.deleteapi, name="deleteapi")
+    path("deleteapi/<int:id>", views.deleteapi, name="deleteapi"),
+    path("editblog/<int:id>", views.editblog, name="editblog")
     #path("visualise/", views.visualise, name="visualise"),
 ]

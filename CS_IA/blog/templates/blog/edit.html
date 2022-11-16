@@ -1,0 +1,23 @@
+{% extends "blog/layout.html" %}
+{% load static %}
+
+
+
+{% block body %}
+{% if user == "Nimet" %}
+<div class="container">
+    {% for blog in blog_list %}
+    <div class="blog">
+    
+    <h1>{{blog.headline}}</h1>
+    <h2>{{blog.content}}</h2>
+    <a class="btn btn-primary" href="/editblog/{{blog.id}}" role="button">Edit</a>
+    </div>
+    {% endfor %}
+    
+    
+    </div class="container">
+
+
+{% endif %}
+{% endblock %}

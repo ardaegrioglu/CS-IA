@@ -1,0 +1,25 @@
+{% extends "blog/layout.html" %}
+{% load static %}
+
+
+{% block body %}
+{% if user == "Nimet" %}
+<div class="center">
+    <form method="post" id="editform">
+        {% csrf_token %}
+        {{ form.as_p }}
+        Headline:<br>
+        <input name="headline" value="{{ blog.headline }}">
+        <br><br>
+        Content:<br>
+        <input name="content" value="{{ blog.content }}">
+        <br><br>
+        Genre:<br>
+        <input name="genre" value="{{ genre.genre_name }}">
+        <br><br>
+        <input type="submit">
+    </form>
+    
+    </div>
+{% endif %}
+{% endblock %}
