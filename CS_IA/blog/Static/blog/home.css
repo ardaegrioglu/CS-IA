@@ -12,4 +12,16 @@
     top: 10%;
     left: 50%;
     transform: translate(-50%, -50%);
+    font-size: 80px;
+}
+
+button {
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    padding-top: 40px;
+
 }

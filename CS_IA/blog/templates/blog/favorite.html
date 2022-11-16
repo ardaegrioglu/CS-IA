@@ -10,12 +10,12 @@
 <h1>Welcome back {{username}}</h1>
 {% endif %}
 <div class="container">
-{% for blog in blog_list %}
+{% for blog in favorite_list %}
 <div class="blog">
 <h1>{{blog.headline}}</h1>
 <h2>{{blog.content}}</h2>
 <a class="btn btn-primary" href="/read/{{blog.id}}" role="button">Read More</a>
-<a class="btn btn-secondary" href="/favorite/{{blog.id}}" role="button">Favorite</a>
+<a class="btn btn-secondary" href="/unfavorite/{{blog.id}}" role="button">Un-Favorite</a>
 </div class="container">
 {% endfor %}
 </div>

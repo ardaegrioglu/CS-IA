@@ -6,9 +6,9 @@
     <form method="post" id="loginform">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="button" class="btn btn-outline-success"
-                    type="submit">Contribute
-            </button>
+        <input type="submit">
     </form>
+    
     </div>
+    <a class="btn btn-primary" href="/signup" role="button">Not a member?</a>
 {% endblock %}

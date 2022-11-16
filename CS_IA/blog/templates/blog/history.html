@@ -2,21 +2,17 @@
 {% load static %}
 
 {% block head %}
-<link rel="stylesheet" href="{% static 'blog/home.css' %}">
+<link rel="stylesheet" href="{% static 'blog/article.css' %}">
 {% endblock %}
 
 {% block body %}
-{% if username != None %}
-<h1>Welcome back {{username}}</h1>
-{% endif %}
-<div class="container">
-{% for blog in blog_list %}
+{% for blog in history %}
 <div class="blog">
 <h1>{{blog.headline}}</h1>
 <h2>{{blog.content}}</h2>
 <a class="btn btn-primary" href="/read/{{blog.id}}" role="button">Read More</a>
-<a class="btn btn-secondary" href="/favorite/{{blog.id}}" role="button">Favorite</a>
 </div class="container">
 {% endfor %}
-</div>
+
+
 {% endblock %}

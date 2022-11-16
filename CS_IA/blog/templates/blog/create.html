@@ -1,12 +1,16 @@
 {% extends "blog/layout.html" %}
 {% load static %}
 
+
 {% block body %}
+{% if user == "Nimet" %}
 <div class="center">
-    <form method="post" id="signupform">
+    <form method="post" id="createform">
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit">
     </form>
+    
     </div>
+{% endif %}
 {% endblock %}
