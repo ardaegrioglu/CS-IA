@@ -1,3 +1,11 @@
 {% extends "blog/layout.html" %}
 {% load static %}
 
+{% block body %}
+{% if username == "Nimet" %}
+
+<h1>{{ totalread }}</h1>
+<img src='data:image/png;base64,{{ catplot }}'/>
+
+{% endif %}
+{% endblock %}

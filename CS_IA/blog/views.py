@@ -9,8 +9,11 @@ from django.urls import reverse
 from blog.models import User, Agegroup, Article, History, Genres, Favorite
 from datetime import datetime
 import matplotlib.pyplot as plt
-import seaborn as sbs
-
+import seaborn as sns
+import numpy as np
+import pandas as pd
+from io import BytesIO
+import base64
 
 class homeblog:
     def __init__(self, headline, content, id):
@@ -23,13 +26,8 @@ class articlesingle(homeblog):
     def __init__ (self, headline, content, id, genre):
         homeblog.__init__(self, headline, content, id)
         self.genre = genre
-
-# Python program for implementation of Quicksort Sort
-
-# This implementation utilizes pivot as the last element in the nums list
-# It has a pointer to keep track of the elements smaller than the pivot
-# At the very end of partition() function, the pointer is swapped with the pivot
-# to come up with a "sorted" nums relative to the pivot
+    #article single diye bir method aç, constructor yaz, initial parameterlar verirse onlara göre vermezse default çıkar
+    
 
 
 # Function to find the partition position
@@ -83,8 +81,11 @@ def index(request):
     Blogs = list(Article.objects.values())
     for blog in Blogs:
         blog_list.append(homeblog(blog["headline"], f'{blog["content"][0:10]}...', blog["id"]))
-
-    username = request.session['username']
+    try:
+        username = request.session['username']
+    except:
+        username = "Visitor"
+        pass
     quickSort(blog_list, 0, len(blog_list) - 1)
 
     return render(request, 'blog/index.html', {
@@ -290,7 +291,7 @@ def create(request):
 
     return render(request, "blog/create.html", { 
         "form": form,
-        "user": user
+        "username": user
     })
 
 def delete(request):
@@ -304,7 +305,7 @@ def delete(request):
 
     return render(request, "blog/delete.html", {
         "blog_list": blog_list,
-        "user": username
+        "username": username
     })
 
 def deleteapi(request, id):
@@ -326,7 +327,7 @@ def edit(request):
 
     return render(request, "blog/edit.html", {
         "blog_list": blog_list,
-        "user": username
+        "username": username
     })
 
 def editblog(request, id):
@@ -356,14 +357,67 @@ def editblog(request, id):
     return render(request, "blog/editblog.html", { 
         "blog": querry[0],
         "user": user,
-        "genre": genre
+        "genre": genre,
+        "username": user
     })
 
 
+class queue:
+    def __init__(self, list):
+       self.list = list        
+    def que(self, value):
+        self.list.append(value)
+    def deque(self):
+        value = self.list[-1]
+        self.list = self.list[:-1]
+        return value
+    def display(self):
+        return self.list
+
+def to_integer(dt_time):
+    return 10000*dt_time.year + 100*dt_time.month + dt_time.day
+
 def visualise(request):
+    genre_list = []
+    time_list = []
+    visualise_list = []
+    age_group_list = []
     querry = list(History.objects.all().values())
-    for entry in History
-    return render(request, "blog/visualise.html")
+    user = request.session['username']
+    for entry in querry:
+        for key in entry:
+            if (key == 'date_read' or key == 'age_group_id' or key == 'genre_id'):
+                visualise_list.append(entry[key])
+        visualise = queue(list = visualise_list)
+    total_read = len(visualise.display())
+    datetime = visualise.display()
+    iter = int(total_read)/3
+    for x in range(int(iter)):
+        time = (visualise.deque())
+        time_list.append(time)
+        age_group_list.append(visualise.deque())
+        genre = list(Genres.objects.filter(id = visualise.deque()).values())
+        genre_list.append(genre)
+        
+        
+        
+        
+        
+        
+        
+        
+    nparray = pd.DataFrame({"time":time_list, "genre":genre_list, "age_group":age_group_list, "count":total_read})
+    catplot = sns.catplot(data = nparray, x="time", y="count", hue = "age_group", kind = "box")
+    plot_file = BytesIO() 
+    catplot.savefig(plot_file, format='png')
+    encoded_file = base64.b64encode(plot_file.getValue())
+    return render(request, "blog/visualise.html", {
+        "totalread": total_read,
+        "catplot": encoded_file,
+        "username": user,
+        "datetime": datetime
+
+    })
 
 
 
