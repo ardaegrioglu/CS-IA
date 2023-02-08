@@ -1,5 +1,6 @@
 from . import views
 from django.urls import path, include
+from django.contrib import admin
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -15,5 +16,7 @@ urlpatterns = [
     path("delete/", views.delete, name="delete"),
     path("deleteapi/<int:id>", views.deleteapi, name="deleteapi"),
     path("editblog/<int:id>", views.editblog, name="editblog"),
-    path("visualise/", views.visualise, name="visualise")
+    path("visualise/", views.visualise, name="visualise"),
+    path('api', views.ChartData.as_view()),
+    path('logoutapi', views.logoutapi, name="logoutapi"),
 ]

@@ -14,6 +14,10 @@ import numpy as np
 import pandas as pd
 from io import BytesIO
 import base64
+from django.shortcuts import render
+from django.views.generic import View
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 class homeblog:
     def __init__(self, headline, content, id):
@@ -74,7 +78,9 @@ def quickSort(array, low, high):
 		# Recursive call on the right of pivot
 		quickSort(array, pi + 1, high)
 
-
+def logoutapi(request):
+    request.session.flush()
+    return HttpResponseRedirect(reverse("index"))
     
 def index(request):
     blog_list = []
@@ -85,6 +91,7 @@ def index(request):
         username = request.session['username']
     except:
         username = "Visitor"
+        request.session['username'] = username
         pass
     quickSort(blog_list, 0, len(blog_list) - 1)
 
@@ -208,7 +215,9 @@ def article(request, id):
     Blogs = list(Article.objects.values())
     for blog in Blogs:
         blog_list.append(articlesingle(blog["headline"], blog["content"], blog["id"], blog["genre_id"]))
-    num = binary_search(blog_list, 0, len(blog_list)-1, id)
+    length = len(blog_list)
+    quickSort(blog_list, 0, length - 1)
+    num = binary_search(blog_list, 0, length - 1, id)
     save = History(user = User.objects.get(username = request.session['username']), article = Article.objects.get(id = id), genre = Genres.objects.get(id = blog_list[num].genre), age_group = Agegroup.objects.get(id = request.session['agegroup']), date_read = datetime.now())
     save.save()
     return render(request, "blog/article.html", {
@@ -221,7 +230,7 @@ def history(request):
     user_data = (list(User.objects.filter(username = user).values()))[0]["id"]
     querry = list((History.objects.filter(user_id = user_data).values().distinct("article_id")))
     for history in querry:
-        blog = list(Article.objects.filter(id = (querry)[0]['article_id']).values())
+        blog = list(Article.objects.filter(id = (history)['article_id']).values())
         history_list.append(homeblog(blog[0]["headline"], f'{blog[0]["content"][0:10]}...', blog[0]["id"]))
     return render(request, "blog/history.html", {
         "history": history_list
@@ -377,6 +386,48 @@ class queue:
 def to_integer(dt_time):
     return 10000*dt_time.year + 100*dt_time.month + dt_time.day
 
+class ChartData(APIView):
+    
+    
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format = None):
+        querry = list(History.objects.all().values())
+        labels = [
+            '0-8',
+            '9-16', 
+            '17-24', 
+            '25-36', 
+            '36+'
+            ]
+        genres = []
+        genreslist = list(Genres.objects.all().values())
+        for entry in genreslist:
+            genres.append(entry["genre_name"])
+        chartdata = [0, 0, 0, 0, 0]
+        genredata = []
+        for x in range(len(genres)):
+            genredata.append(0)
+        for entry in querry:
+            for key in entry:
+                if (key == 'age_group_id'):
+                    chartdata[(entry[key] - 1)] += 1
+                if (key == 'genre_id'):
+                    genredata[(entry[key] - 1)] += 1
+        chartLabel = "Age groups that read the most articles"
+        genreLabel = "Articles Read By Genre"
+        data ={
+                     "labels":labels,
+                     "chartLabel":chartLabel,
+                     "chartdata":chartdata,
+                     "genre":genres,
+                     "genreLabel":genreLabel,
+                     "genredata":genredata
+
+             }
+        return Response(data)
+
 def visualise(request):
     genre_list = []
     time_list = []
@@ -389,7 +440,7 @@ def visualise(request):
             if (key == 'date_read' or key == 'age_group_id' or key == 'genre_id'):
                 visualise_list.append(entry[key])
         visualise = queue(list = visualise_list)
-    total_read = len(visualise.display())
+    total_read = len(querry)
     datetime = visualise.display()
     iter = int(total_read)/3
     for x in range(int(iter)):
@@ -406,14 +457,9 @@ def visualise(request):
         
         
         
-    nparray = pd.DataFrame({"time":time_list, "genre":genre_list, "age_group":age_group_list, "count":total_read})
-    catplot = sns.catplot(data = nparray, x="time", y="count", hue = "age_group", kind = "box")
-    plot_file = BytesIO() 
-    catplot.savefig(plot_file, format='png')
-    encoded_file = base64.b64encode(plot_file.getValue())
+
     return render(request, "blog/visualise.html", {
         "totalread": total_read,
-        "catplot": encoded_file,
         "username": user,
         "datetime": datetime
 

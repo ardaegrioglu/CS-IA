@@ -1,11 +1,109 @@
 {% extends "blog/layout.html" %}
 {% load static %}
 
+{% block head %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+{% endblock %}
+
 {% block body %}
 {% if username == "Nimet" %}
+    <div class="center">Total Articles Read: {{totalread}}</div>
+    <div class="center">
+      <div class="col-md-6">
+        Article Readers by Age Group
+        <canvas id="myChartAge"></canvas>
+        Articles Read by Genre
+        <canvas id="myChartGenre"></canvas>
+      </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    
+    <script>
+      var endpoint = '/api';
+    
+      $.ajax({
+        method: "GET",
+        url: endpoint,
+        success: function(data) {
+          drawAgeGraph(data, 'myChartAge');
+          drawGenreGraph(data, 'myChartGenre')
+          console.log("drawing");
+        },
+        error: function(error_data) {
+          console.log(error_data);
+        }
+      })
+    
+    
+    
+      function drawAgeGraph(data, id) {
+        var labels = data.labels;
+        var chartLabel = data.chartLabel;
+        var chartdata = data.chartdata;
+        var ctx = document.getElementById(id).getContext('2d');
+        var myChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: chartLabel,
+              data: chartdata,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+            }]
+          },
+          options: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        );
+      }
 
-<h1>{{ totalread }}</h1>
-<img src='data:image/png;base64,{{ catplot }}'/>
+      function drawGenreGraph(data, id) {
+        var labels = data.genre;
+        var chartLabel = data.genreLabel;
+        var chartdata = data.genredata;
+        var ctx = document.getElementById(id).getContext('2d');
+        var myChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: chartLabel,
+              data: chartdata,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+            }]
+          },
+          options: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        );
+      }
+    </script>
+  </body>
 
 {% endif %}
 {% endblock %}
